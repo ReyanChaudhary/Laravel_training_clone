@@ -1,64 +1,158 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+Dot Access Data
+===============
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Latest Version](https://img.shields.io/packagist/v/dflydev/dot-access-data.svg?style=flat-square)](https://packagist.org/packages/dflydev/dot-access-data)
+[![Total Downloads](https://img.shields.io/packagist/dt/dflydev/dot-access-data.svg?style=flat-square)](https://packagist.org/packages/dflydev/dot-access-data)
+[![Software License](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)](LICENSE)
+[![Build Status](https://img.shields.io/github/workflow/status/dflydev/dflydev-dot-access-data/Tests/main.svg?style=flat-square)](https://github.com/dflydev/dflydev-dot-access-data/actions?query=workflow%3ATests+branch%3Amain)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/dflydev/dflydev-dot-access-data.svg?style=flat-square)](https://scrutinizer-ci.com/g/dflydev/dflydev-dot-access-data/code-structure/)
+[![Quality Score](https://img.shields.io/scrutinizer/g/dflydev/dflydev-dot-access-data.svg?style=flat-square)](https://scrutinizer-ci.com/g/dflydev/dflydev-dot-access-data)
 
-## About Laravel
+Given a deep data structure, access data by dot notation.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Requirements
+------------
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+ * PHP (7.1+)
 
-## Learning Laravel
+> For PHP (5.3+) please refer to version `1.0`.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Usage
+-----
 
-## Laravel Sponsors
+Abstract example:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```php
+use Dflydev\DotAccessData\Data;
 
-### Premium Partners
+$data = new Data;
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+$data->set('a.b.c', 'C');
+$data->set('a.b.d', 'D1');
+$data->append('a.b.d', 'D2');
+$data->set('a.b.e', ['E0', 'E1', 'E2']);
 
-## Contributing
+// C
+$data->get('a.b.c');
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+// ['D1', 'D2']
+$data->get('a.b.d');
 
-## Code of Conduct
+// ['E0', 'E1', 'E2']
+$data->get('a.b.e');
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+// true
+$data->has('a.b.c');
 
-## Security Vulnerabilities
+// false
+$data->has('a.b.d.j');
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
+// 'some-default-value'
+$data->get('some.path.that.does.not.exist', 'some-default-value');
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+// throws a MissingPathException because no default was given
+$data->get('some.path.that.does.not.exist');
+```
+
+A more concrete example:
+
+```php
+use Dflydev\DotAccessData\Data;
+
+$data = new Data([
+    'hosts' => [
+        'hewey' => [
+            'username' => 'hman',
+            'password' => 'HPASS',
+            'roles'    => ['web'],
+        ],
+        'dewey' => [
+            'username' => 'dman',
+            'password' => 'D---S',
+            'roles'    => ['web', 'db'],
+            'nick'     => 'dewey dman',
+        ],
+        'lewey' => [
+            'username' => 'lman',
+            'password' => 'LP@$$',
+            'roles'    => ['db'],
+        ],
+    ],
+]);
+
+// hman
+$username = $data->get('hosts.hewey.username');
+// HPASS
+$password = $data->get('hosts.hewey.password');
+// ['web']
+$roles = $data->get('hosts.hewey.roles');
+// dewey dman
+$nick = $data->get('hosts.dewey.nick');
+// Unknown
+$nick = $data->get('hosts.lewey.nick', 'Unknown');
+
+// DataInterface instance
+$dewey = $data->getData('hosts.dewey');
+// dman
+$username = $dewey->get('username');
+// D---S
+$password = $dewey->get('password');
+// ['web', 'db']
+$roles = $dewey->get('roles');
+
+// No more lewey
+$data->remove('hosts.lewey');
+
+// Add DB to hewey's roles
+$data->append('hosts.hewey.roles', 'db');
+
+$data->set('hosts.april', [
+    'username' => 'aman',
+    'password' => '@---S',
+    'roles'    => ['web'],
+]);
+
+// Check if a key exists (true to this case)
+$hasKey = $data->has('hosts.dewey.username');
+```
+
+`Data` may be used as an array, since it implements `ArrayAccess` interface:
+
+```php
+// Get
+$data->get('name') === $data['name']; // true
+
+$data['name'] = 'Dewey';
+// is equivalent to
+$data->set($name, 'Dewey');
+
+isset($data['name']) === $data->has('name');
+
+// Remove key
+unset($data['name']);
+```
+
+`/` can also be used as a path delimiter:
+
+```php
+$data->set('a/b/c', 'd');
+echo $data->get('a/b/c'); // "d"
+
+$data->get('a/b/c') === $data->get('a.b.c'); // true
+```
+
+License
+-------
+
+This library is licensed under the MIT License - see the LICENSE file
+for details.
+
+
+Community
+---------
+
+If you have questions or want to help out, join us in the
+[#dflydev](irc://irc.freenode.net/#dflydev) channel on irc.freenode.net.
